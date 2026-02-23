@@ -36,6 +36,7 @@ class MCPToolWrapper(Tool):
 
     async def execute(self, **kwargs: Any) -> str:
         from mcp import types
+
         try:
             result = await asyncio.wait_for(
                 self._session.call_tool(self._original_name, arguments=kwargs),
@@ -69,12 +70,10 @@ async def connect_mcp_servers(
                 read, write = await stack.enter_async_context(stdio_client(params))
             elif cfg.url:
                 from mcp.client.streamable_http import streamable_http_client
+
                 if cfg.headers:
                     http_client = await stack.enter_async_context(
-                        httpx.AsyncClient(
-                            headers=cfg.headers,
-                            follow_redirects=True
-                        )
+                        httpx.AsyncClient(headers=cfg.headers, follow_redirects=True)
                     )
                     read, write, _ = await stack.enter_async_context(
                         streamable_http_client(cfg.url, http_client=http_client)
