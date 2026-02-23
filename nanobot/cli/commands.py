@@ -996,6 +996,39 @@ def cron_run(
 # ============================================================================
 
 
+sessions_app = typer.Typer(help="Manage conversation sessions")
+app.add_typer(sessions_app, name="sessions")
+
+
+@sessions_app.command("list")
+def sessions_list():
+    """List saved conversation sessions."""
+    from nanobot.config.loader import load_config
+    from nanobot.session.manager import SessionManager
+
+    config = load_config()
+    session_manager = SessionManager(config.workspace_path)
+    sessions = session_manager.list_sessions()
+
+    if not sessions:
+        console.print("No sessions found.")
+        return
+
+    table = Table(title="Sessions")
+    table.add_column("Session", style="cyan")
+    table.add_column("Updated")
+    table.add_column("Created")
+
+    for item in sessions:
+        table.add_row(
+            item.get("key", ""),
+            item.get("updated_at", "") or "",
+            item.get("created_at", "") or "",
+        )
+
+    console.print(table)
+
+
 @app.command()
 def status():
     """Show nanobot status."""
